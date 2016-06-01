@@ -26,7 +26,8 @@
       series: 'ct-series',
       slicePie: 'ct-slice-pie',
       sliceDonut: 'ct-slice-donut',
-      label: 'ct-label'
+      label: 'ct-label',
+      textCenteredlabel: 'ct-tclabel'
     },
     // The start angle of the pie chart in degrees where 0 points north. A higher value offsets the start angle clockwise.
     startAngle: 0,
@@ -50,7 +51,15 @@
     // If true the whole data is reversed including labels, the series order as well as the whole series data arrays.
     reverseData: false,
     // If true empty values will be ignored to avoid drawing unncessary slices and labels
-    ignoreEmptyValues: false
+    ignoreEmptyValues: false,
+    // If true display text in center of graph
+    textCentered: false,
+    // Select which value of serie show for 'textCentered' attrib
+    textCenteredColumn: 0,
+    // Set suffix to show
+    textCenteredSuffix: '%',
+    // Font size for Label
+    textCenteredFontSize: 24
   };
 
   /**
@@ -139,7 +148,7 @@
     }).length === 1;
 
     //if we need to show labels we create the label group now
-    if(options.showLabel) {
+    if(options.showLabel || options.textCentered) {
       labelsGroup = this.svg.elem('g', null, null, true);
     }
 
@@ -248,7 +257,20 @@
           });
         }
       }
+      
+      // Add text to center of graph
+      if(i === options.textCenteredColumn && options.textCentered) {
+        var yAnchorPosition = options.textCenteredFontSize/2;
+        var textCenter = center;
+        textCenter.y = center.y + yAnchorPosition;
 
+        var labelElement = labelsGroup.elem('text', {
+          dx: textCenter.x,
+          dy: textCenter.y,
+          'text-anchor': determineAnchorPosition(textCenter, textCenter, options.labelDirection),
+          'font-size': 24
+        }, options.classNames.textCenteredlabel).text('' + this.data.series[i] + options.textCenteredSuffix );
+      }
       // Set next startAngle to current endAngle.
       // (except for last slice)
       startAngle = endAngle;
